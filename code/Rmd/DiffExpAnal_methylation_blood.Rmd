@@ -67,7 +67,7 @@ EXP = dplyr::select(EXP,-(V1))
 
 ```{r metadata}
 METADATA_OBJ = synTableQuery(paste('SELECT * FROM',METADATA_ID,sep=' '))
-ALL_USED_IDs[length(ALL_USED_IDs)+1] = METADATA_OBJ@schema
+ALL_USED_IDs = c(ALL_USED_IDs, METADATA_OBJ@schema)
 METADATA = METADATA_OBJ@values
 
 METADATA[METADATA == 'N/A'] = NA
@@ -102,7 +102,7 @@ EXP <- EXP[, METADATA$UID]
 ```
 
 ```{r variance.filter}
-exp.variance <- apply(as.matrix(EXP),1,var)
+exp.variance <- apply(as.matrix(EXP), 1, var)
 
 ind.remove1 <- exp.variance < sort(exp.variance)[round(0.25*length(exp.variance))]
 ind.remove2 <- (rowSums(EXP <= 0.25)/dim(EXP)[2] == 1) | (rowSums(EXP >= 0.75)/dim(EXP)[2] == 1)
@@ -135,7 +135,7 @@ tmp <- topTable(FIT.CONTRAST, coef="blood - nonblood", number=1e7, sort.by = "p"
 tmp <- mutate(tmp, changeInBeta=var1Mean - var2Mean,
               Comparison=ifelse(logFC > 0, "blood__up", "blood__down"))
 
-write.table(tmp, file='./DiffExpAnal_methylation_blood_topTable.tsv')
+write.csv(tmp, file='./DiffExpAnal_methylation_blood_topTable.csv')
 ```
 Number of differentially expressed genes at adj.P.Val <= 0.05 and abs(logFC) >= 0.5: `r nrow(topTable(FIT.CONTRAST, coef=1, number=Inf, p.value=0.05, lfc=0.5))`.
 
@@ -157,7 +157,7 @@ thisFile <- getPermlink(repository = thisRepo,
 CODE <- Folder(name = 'Differential Expression Analysis Methylation Blood', parentId = parentId)
 CODE <- synStore(CODE)
 
-TT_OBJ <- File('./DiffExpAnal_methylation_blood_topTable.tsv', name = 'topTable', 
+TT_OBJ <- File('./DiffExpAnal_methylation_blood_topTable.csv', name = 'topTable', 
                parentId = CODE$properties$id)
 
 TT_OBJ <- synStore(FC_OBJ, used = ALL_USED_IDs, 
