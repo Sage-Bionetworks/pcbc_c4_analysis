@@ -136,11 +136,8 @@ FIT.CONTRAST <- eBayes(FIT.CONTRAST)
   
 tmp <- topTable(FIT.CONTRAST, number=1e7)
 
-tmp2 <- getUpDownGenes(tmp$adj.P.Val, 
-                       tmp$logFC, 
-                       rownames(tmp),
-                       "blood", 
-                       FC_CUTOFF = 0)
+tmp2 <- getUpDownGenes(tmp$adj.P.Val, tmp$logFC, rownames(tmp), 
+                       "blood", FC_CUTOFF = 0)
 ```
 Number of differentially expressed genes at DE stage for adj.P.Val <= 0.05 and logFC >= 0.5 or <= -0.5
 ### Store files in synapse
