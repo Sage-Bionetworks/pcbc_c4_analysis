@@ -5,7 +5,7 @@ date: '`r date()`'
 ```{r knit, include=FALSE, eval=FALSE}
 knit2synapse::knitToFolderEntity(file = "./DiffExpAnal_methylation_blood.Rmd", 
                                  parentId = 'syn4231339',
-                                 entityName = 'Differential Expression Analysis Methylation Blood', 
+                                 folderName = 'Differential Expression Analysis Methylation Blood', 
                                  overwrite=F)
 
 ```
