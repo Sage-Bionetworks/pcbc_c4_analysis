@@ -36,7 +36,7 @@ synapseLogin()
 options(xtable.type="html")
 
 knitr::opts_chunk$set(
-  echo=FALSE,
+  echo=TRUE,
   warning=FALSE,
   message=FALSE,
   error = FALSE,
@@ -54,7 +54,7 @@ bloodLines <- c("CD90", "MEP", "GMP", "CD34DMSO", "CD34UNC", "MEG",
                 "SC13-046-32EPOMEP", "SC13-046-32RBC")
 ```
 
-```{r getdata, cache=TRUE, include=FALSE}
+```{r getdata}
 # Get filtered beta values
 EXP_OBJ = synGet(EXP_ID)
 ALL_USED_IDs = EXP_OBJ$properties$id
@@ -82,7 +82,7 @@ rownames(METADATA) = METADATA$UID
 
 ```
 
-```{r}
+```{r filter.metadata}
 #### Pre processing mRNA expression counts and metadata ####
 metadata_keep <- METADATA %>% 
   filter(UID %in% colnames(EXP))
@@ -138,7 +138,7 @@ write.csv(tmp, file='./DiffExpAnal_methylation_blood_topTable.csv')
 Number of differentially expressed genes at adj.P.Val <= 0.05 and abs(logFC) >= 0.5: `r nrow(topTable(FIT.CONTRAST, coef=1, number=Inf, p.value=0.05, lfc=0.5))`.
 
 ### Store files in synapse
-```{r synapse.store, include = FALSE, eval=FALSE, cache=FALSE}
+```{r synapse.store, include=TRUE, eval=TRUE, cache=FALSE}
 activityName='Differential Expression Analysis of minfi processed methylation data - blood vs non-blood samples'
   
 thisFileName <- 'DiffExpAnal_methylation_blood.Rmd'
