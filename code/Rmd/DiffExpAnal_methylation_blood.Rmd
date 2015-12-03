@@ -139,7 +139,7 @@ Number of differentially expressed genes at adj.P.Val <= 0.05 and abs(logFC) >= 
 
 ### Store files in synapse
 ```{r synapse.store, include=TRUE, eval=TRUE}
-activityName='Differential Expression Analysis of minfi processed methylation data - blood vs non-blood samples'
+activityName='Differential Expression Analysis'
   
 thisFileName <- 'DiffExpAnal_methylation_blood.Rmd'
   
