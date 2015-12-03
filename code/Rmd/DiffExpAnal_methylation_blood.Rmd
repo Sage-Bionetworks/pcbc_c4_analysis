@@ -130,8 +130,9 @@ var1Mean = rowMeans(EXP[, METADATA$UID[ind], drop=F], na.rm=T)
 var2Mean = rowMeans(EXP[, METADATA$UID[-ind], drop=F], na.rm=T)
 
 tmp <- topTable(FIT.CONTRAST, coef="blood - nonblood", number=1e7, sort.by = "p")
-tmp <- mutate(tmp, changeInBeta=var1Mean - var2Mean,
-              Comparison=ifelse(logFC > 0, "blood__up", "blood__down"))
+tmp <- mutate(tmp, probeId=rownames(tmp), changeInBeta=var1Mean - var2Mean,
+              Comparison=ifelse(logFC > 0, "blood__up", "blood__down")) %>%
+  dplyr::select(probeId, everything())
 
 write.csv(tmp, file='./DiffExpAnal_methylation_blood_topTable.csv', row.names=FALSE)
 ```
