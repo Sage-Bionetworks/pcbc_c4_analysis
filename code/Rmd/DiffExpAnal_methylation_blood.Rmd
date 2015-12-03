@@ -158,6 +158,6 @@ CODE <- synStore(CODE)
 TT_OBJ <- File('./DiffExpAnal_methylation_blood_topTable.csv', name = 'topTable', 
                parentId = CODE$properties$id)
 
-TT_OBJ <- synStore(FC_OBJ, used = ALL_USED_IDs, 
+TT_OBJ <- synStore(TT_OBJ, used = ALL_USED_IDs, 
                    activityName = activityName, executed=thisFile)
 ```
