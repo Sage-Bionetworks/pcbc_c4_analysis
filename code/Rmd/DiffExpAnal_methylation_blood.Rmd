@@ -41,7 +41,7 @@ knitr::opts_chunk$set(
   message=FALSE,
   error = FALSE,
   tidy = FALSE,
-  cache = TRUE)
+  cache = FALSE)
 ```
 ### Download data
 ```{r setup, include=FALSE}
@@ -133,12 +133,12 @@ tmp <- topTable(FIT.CONTRAST, coef="blood - nonblood", number=1e7, sort.by = "p"
 tmp <- mutate(tmp, changeInBeta=var1Mean - var2Mean,
               Comparison=ifelse(logFC > 0, "blood__up", "blood__down"))
 
-write.csv(tmp, file='./DiffExpAnal_methylation_blood_topTable.csv')
+write.csv(tmp, file='./DiffExpAnal_methylation_blood_topTable.csv', row.names=FALSE)
 ```
 Number of differentially expressed genes at adj.P.Val <= 0.05 and abs(logFC) >= 0.5: `r nrow(topTable(FIT.CONTRAST, coef=1, number=Inf, p.value=0.05, lfc=0.5))`.
 
 ### Store files in synapse
-```{r synapse.store, include=TRUE, eval=TRUE, cache=FALSE}
+```{r synapse.store, include=TRUE, eval=TRUE}
 activityName='Differential Expression Analysis of minfi processed methylation data - blood vs non-blood samples'
   
 thisFileName <- 'DiffExpAnal_methylation_blood.Rmd'
