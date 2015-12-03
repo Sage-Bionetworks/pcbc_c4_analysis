@@ -118,6 +118,16 @@ fData = get450KProbeMapping(rownames(EXP))
 |**Name**| **Synapse ID**|
 |Filtered Expression|`r paste(EXP_ID,EXP_OBJ$properties$versionNumber,sep='.')`|
 
+```{r}
+exp.variance <- apply(as.matrix(EXP),1,var)
+
+ind.remove1 <- exp.variance < sort(exp.variance)[round(0.25*length(exp.variance))]
+ind.remove2 <- (rowSums(EXP <= 0.25)/dim(EXP)[2] == 1) | (rowSums(EXP >= 0.75)/dim(EXP)[2] == 1)
+
+EXP <- EXP[!ind.remove1 & !ind.remove2,]
+
+```
+
 #### Perform differential expression
 ```{r diff.exp, fig.width=6, fig.height=6}
 mat <- model.matrix(~ 0 + blood, METADATA)
@@ -134,7 +144,7 @@ FIT.CONTRAST <- contrasts.fit(FIT, CONT)
 # Estimate moderated t-statistics
 FIT.CONTRAST <- eBayes(FIT.CONTRAST)
   
-tmp <- topTable(FIT.CONTRAST, number=1e7)
+tmp <- topTable(FIT.CONTRAST, coef=1, number=1e7, sort.by = "p")
 
 tmp2 <- getUpDownGenes(tmp$adj.P.Val, tmp$logFC, rownames(tmp), 
                        "blood", FC_CUTOFF = 0)
