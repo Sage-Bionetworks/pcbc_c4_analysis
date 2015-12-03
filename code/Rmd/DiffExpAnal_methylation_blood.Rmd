@@ -4,6 +4,15 @@ author: "Kenneth Daily"
 date: '`r date()`'
 output: html_document
 ---
+
+```{r knit, include=FALSE, eval=FALSE}
+knit2synapse::knitToFolderEntity(file = "./DiffExpAnal_methylation_blood.Rmd", 
+                                 parentId = 'syn4231339',
+                                 entityName = 'Differential Expression Analysis Methylation Blood', 
+                                 overwrite=F)
+
+```
+
 ```{r libs, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 ## It is assumed your working directory is where this file is
 
@@ -23,12 +32,6 @@ library(FDb.InfiniumMethylation.hg19)
 
 ## Needs the dev branch
 library(rGithubClient)
-
-## Requires ggdendro
-# knitToFolderEntity(file = "./DiffExpAnal_methylation_mixedEffects.Rmd", 
-#                    parentId = 'syn4231339',
-#                    entityName = 'Differential Expression Analysis Methylation Mixed Effects Model All', 
-#                    overwrite=F)
 
 synapseLogin()
 
@@ -123,9 +126,13 @@ FIT.CONTRAST <- contrasts.fit(FIT, CONT)
 
 # Estimate moderated t-statistics
 FIT.CONTRAST <- eBayes(FIT.CONTRAST)
-  
+
+ind = which(METADATA[, 'blood'] == 'blood')
+var1Mean = rowMeans(EXP[, METADATA$UID[ind], drop=F], na.rm=T)
+var2Mean = rowMeans(EXP[, METADATA$UID[-ind], drop=F], na.rm=T)
+
 tmp <- topTable(FIT.CONTRAST, coef="blood - nonblood", number=1e7, sort.by = "p")
-tmp <- mutate(tmp, changeInBeta=2**logFC,
+tmp <- mutate(tmp, changeInBeta=var1Mean - var2Mean,
               Comparison=ifelse(logFC > 0, "blood__up", "blood__down"))
 
 write.table(tmp, file='./DiffExpAnal_methylation_blood_topTable.tsv')
