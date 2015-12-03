@@ -1,8 +1,5 @@
 ---
-title: "Differential expression analysis of minfi curated methylation data - blood samples"
-author: "Kenneth Daily"
 date: '`r date()`'
-output: html_document
 ---
 
 ```{r knit, include=FALSE, eval=FALSE}
