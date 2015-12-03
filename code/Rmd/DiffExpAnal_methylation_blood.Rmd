@@ -9,24 +9,14 @@ output: html_document
 
 # Load required libraries
 library('synapseClient')
-library('RColorBrewer')
-library('ggplot2')
-library('gplots')
 library('limma')
-library('edgeR')
-library('ctv')
-library('psych')
 library('reshape2')
-library('vcd')
-library('erer')
-library('fpc')
 library('data.table')
 library('plyr')
 library('dplyr')
 library('knitr')
 library('stringr')
 library('minfi')
-library('org.Hs.eg.db')
 library('knit2synapse')
 library(pcbcStats)
 library(FDb.InfiniumMethylation.hg19)
@@ -108,17 +98,7 @@ EXP <- EXP[, METADATA$UID]
 
 ```
 
-```{r}
-# Get probe related metadata
-fData = get450KProbeMapping(rownames(EXP))
-```
-
-#### Synapse id of used matrices
-
-|**Name**| **Synapse ID**|
-|Filtered Expression|`r paste(EXP_ID,EXP_OBJ$properties$versionNumber,sep='.')`|
-
-```{r}
+```{r variance.filter}
 exp.variance <- apply(as.matrix(EXP),1,var)
 
 ind.remove1 <- exp.variance < sort(exp.variance)[round(0.25*length(exp.variance))]
@@ -129,7 +109,7 @@ EXP <- EXP[!ind.remove1 & !ind.remove2,]
 ```
 
 #### Perform differential expression
-```{r diff.exp, fig.width=6, fig.height=6}
+```{r diff.exp}
 mat <- model.matrix(~ 0 + blood, METADATA)
 colnames(mat) <- c("blood", "nonblood")
 
@@ -144,15 +124,17 @@ FIT.CONTRAST <- contrasts.fit(FIT, CONT)
 # Estimate moderated t-statistics
 FIT.CONTRAST <- eBayes(FIT.CONTRAST)
   
-tmp <- topTable(FIT.CONTRAST, coef=1, number=1e7, sort.by = "p")
+tmp <- topTable(FIT.CONTRAST, coef="blood - nonblood", number=1e7, sort.by = "p")
+tmp <- mutate(tmp, changeInBeta=2**logFC,
+              Comparison=ifelse(logFC > 0, "blood__up", "blood__down"))
 
-tmp2 <- getUpDownGenes(tmp$adj.P.Val, tmp$logFC, rownames(tmp), 
-                       "blood", FC_CUTOFF = 0)
+write.table(tmp, file='./DiffExpAnal_methylation_blood_topTable.tsv')
 ```
-Number of differentially expressed genes at DE stage for adj.P.Val <= 0.05 and logFC >= 0.5 or <= -0.5
+Number of differentially expressed genes at adj.P.Val <= 0.05 and abs(logFC) >= 0.5: `r nrow(topTable(FIT.CONTRAST, coef=1, number=Inf, p.value=0.05, lfc=0.5))`.
+
 ### Store files in synapse
 ```{r synapse.store, include = FALSE, eval=FALSE, cache=FALSE}
-activityName='Differential Expression Analysis of minfi processed methylation data with mixed effects model'
+activityName='Differential Expression Analysis of minfi processed methylation data - blood vs non-blood samples'
   
 thisFileName <- 'DiffExpAnal_methylation_blood.Rmd'
   
@@ -167,10 +149,6 @@ thisFile <- getPermlink(repository = thisRepo,
 # Make folder and populate with wiki
 CODE <- Folder(name = 'Differential Expression Analysis Methylation Blood', parentId = parentId)
 CODE <- synStore(CODE)
-
-# Store results: logFC
-write.table(logFC,file='./DiffExpAnal_methylation_blood_topTable.tsv',sep='\t',
-            row.names=F, quote=F)
 
 TT_OBJ <- File('./DiffExpAnal_methylation_blood_topTable.tsv', name = 'topTable', 
                parentId = CODE$properties$id)
